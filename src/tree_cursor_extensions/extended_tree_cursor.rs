@@ -4,13 +4,13 @@ use tree_sitter::TreeCursor;
 
 use crate::{node_extensions::ExtendedNode, with_source::WithSource};
 
-pub struct ExtendedTreeCursor<'t, 's> {
+pub struct ExtendedTreeCursor<'t> {
     cursor: TreeCursor<'t>,
-    source: Rc<&'s str>,
+    source: Rc<String>,
 }
 
-impl<'t, 's> ExtendedTreeCursor<'t, 's> {
-    pub fn new(cursor: TreeCursor<'t>, source: &Rc<&'s str>) -> Self {
+impl<'t> ExtendedTreeCursor<'t> {
+    pub fn new(cursor: TreeCursor<'t>, source: &Rc<String>) -> Self {
         ExtendedTreeCursor {
             cursor,
             source: source.clone(),
@@ -18,14 +18,14 @@ impl<'t, 's> ExtendedTreeCursor<'t, 's> {
     }
 }
 
-impl<'t, 's> WithSource<'s> for ExtendedTreeCursor<'t, 's> {
-    fn get_complete_source(self: &Self) -> Rc<&'s str> {
+impl<'t> WithSource for ExtendedTreeCursor<'t> {
+    fn get_complete_source(self: &Self) -> Rc<String> {
         self.source.clone()
     }
 }
 
-impl<'t, 's> Iterator for ExtendedTreeCursor<'t, 's> {
-    type Item = ExtendedNode<'t, 's>;
+impl<'t> Iterator for ExtendedTreeCursor<'t> {
+    type Item = ExtendedNode<'t>;
 
     fn next(&mut self) -> Option<Self::Item> {
         let node = ExtendedNode::new(self.cursor.node(), self.source.clone());
@@ -91,7 +91,7 @@ mod tests {
 
         let cursor = root_node.walk();
 
-        let it = ExtendedTreeCursor::new(cursor, &Rc::new(code));
+        let it = ExtendedTreeCursor::new(cursor, &Rc::new(code.to_string()));
 
         let nodes = it.collect::<Vec<ExtendedNode>>();
 
@@ -154,7 +154,7 @@ mod tests {
 
         let cursor = root_node.walk();
 
-        let it = ExtendedTreeCursor::new(cursor, &Rc::new(code));
+        let it = ExtendedTreeCursor::new(cursor, &Rc::new(code.to_string()));
 
         let nodes = it.collect::<Vec<ExtendedNode>>();
 

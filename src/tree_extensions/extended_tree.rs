@@ -7,19 +7,19 @@ use crate::{
     with_source::WithSource,
 };
 
-pub struct ExtendedTree<'s> {
+pub struct ExtendedTree {
     pub ts_tree: Tree,
-    source: Rc<&'s str>,
+    source: Rc<String>,
 }
 
-impl<'s> WithSource<'s> for ExtendedTree<'s> {
-    fn get_complete_source(self: &Self) -> Rc<&'s str> {
+impl WithSource for ExtendedTree {
+    fn get_complete_source(self: &Self) -> Rc<String> {
         self.source.clone()
     }
 }
 
-impl<'s> ExtendedTree<'s> {
-    fn new(source: &Rc<&'s str>) -> Self {
+impl ExtendedTree {
+    fn new(source: &Rc<String>) -> Self {
         let mut parser = Parser::new();
         parser
             .set_language(tree_sitter_c_sharp::language())
@@ -34,12 +34,9 @@ impl<'s> ExtendedTree<'s> {
     }
 }
 
-impl<'t, 's> IntoIterator for &'t ExtendedTree<'s>
-where
-    's: 't,
-{
-    type Item = ExtendedNode<'t, 's>;
-    type IntoIter = ExtendedTreeCursor<'t, 's>;
+impl<'t> IntoIterator for &'t ExtendedTree {
+    type Item = ExtendedNode<'t>;
+    type IntoIter = ExtendedTreeCursor<'t>;
 
     fn into_iter(self) -> Self::IntoIter {
         ExtendedTreeCursor::new(
@@ -78,7 +75,7 @@ mod tests {
         }
         "#;
 
-        let tree = ExtendedTree::new(&Rc::new(code));
+        let tree = ExtendedTree::new(&Rc::new(code.to_string()));
 
         let mut it = tree.into_iter();
 
