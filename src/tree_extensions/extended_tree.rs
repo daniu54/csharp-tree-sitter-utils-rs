@@ -44,6 +44,21 @@ impl<'s> ExtendedTree<'s> {
     }
 }
 
+impl<'t, 's> IntoIterator for ExtendedTree<'s>
+where
+    's: 't,
+{
+    type Item = ExtendedNode<'t, 's>;
+    type IntoIter = ExtendedTreeCursor<'t, 's>;
+
+    fn into_iter(self) -> Self::IntoIter {
+        ExtendedTreeCursor::new(
+            self.ts_tree.root_node().walk(),
+            &self.get_complete_source().clone(),
+        )
+    }
+}
+
 #[cfg(test)]
 mod tests {
     use crate::node_extensions::NodeExtensions;
@@ -75,7 +90,8 @@ mod tests {
 
         let tree = ExtendedTree::new(&Rc::new(code));
 
-        let mut it = tree.get_cursor();
+        // let mut it = tree.get_cursor();
+        let mut it = tree.into_iter();
 
         it.find(|n| {
             n.ts_node.kind() == "class_declaration" && n.get_source().contains("class Program")
