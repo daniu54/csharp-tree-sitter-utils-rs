@@ -67,9 +67,10 @@ mod tests {
 
         let mut it = tree.into_iter();
 
-        it.find(|n| {
-            n.ts_node.kind() == "class_declaration" && n.get_source().contains("class Program")
-        })
-        .unwrap();
+        let node = it
+            .find(|n| n.ts_node.kind() == "class_declaration")
+            .unwrap();
+
+        assert!(node.get_source().contains("class Program"));
     }
 }
