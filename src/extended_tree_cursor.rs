@@ -128,6 +128,56 @@ mod tests {
     }
 
     #[test]
+    fn should_be_able_to_create_cursor_from_node() {
+        let mut parser = get_parser();
+
+        let code = r#"
+            static void Main(string[] args)
+            {
+                Console.WriteLine("Hello, World!");
+                // this is a comment
+            }
+        "#;
+
+        let tree = parser.parse(code, None).unwrap();
+
+        let root_node = tree.root_node();
+
+        let cursor = root_node.walk();
+
+        let mut it = ExtendedTreeCursor {
+            ts_cursor: cursor,
+            source_code: Rc::new(code.to_string()),
+        };
+
+        let method_node = it
+            .find(|n| n.ts_node.kind() == "local_function_statement")
+            .unwrap();
+
+        assert_eq!(method_node.ts_node.kind(), "local_function_statement");
+
+        let method_nodes = method_node.into_iter().collect::<Vec<_>>();
+
+        contains_node_with_kind_and_text_regex(
+            "local_function_statement",
+            &regex::escape(r#"static void Main(string[] args)"#),
+            &method_nodes,
+        );
+
+        contains_node_with_kind_and_text_regex(
+            "expression_statement",
+            &regex::escape(r#"Console.WriteLine("Hello, World!");"#),
+            &method_nodes,
+        );
+
+        contains_node_with_kind_and_text_regex(
+            "comment",
+            &regex::escape(r#" this is a comment"#),
+            &method_nodes,
+        );
+    }
+
+    #[test]
     fn should_be_well_behaved_for_empty_input() {
         let mut parser = get_parser();
 

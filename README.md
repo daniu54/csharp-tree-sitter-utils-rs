@@ -10,15 +10,21 @@ let code = r#"class Program { }"#;
 
 let tree = ExtendedTree::from_source_code(code);
 
-let node = tree.into_iter()
+let node = tree
+    .into_iter()
     .find(|n| n.ts_node.kind() == "class_declaration")
     .unwrap();
 
 // view the source code of the node
-let node_source_code = node.source_code;
+let node_source_code = &node.source_code;
 
 assert!(node_source_code.contains("class Program"));
 
-// or print the contents of the original tree sitter node
+// print the contents of the original tree sitter node
 println!("{}", node.ts_node.to_sexp());
+
+// traverse the sub-tree of a given node
+for child_node in node.into_iter() {
+    println!("{}", child_node.source_code);
+}
 ```
