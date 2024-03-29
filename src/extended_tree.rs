@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use tree_sitter::{Parser, Tree};
 
-use crate::{node_extensions::ExtendedNode, tree_cursor_extensions::ExtendedTreeCursor};
+use crate::{ExtendedNode, ExtendedTreeCursor};
 
 pub struct ExtendedTree {
     pub ts_tree: Tree,
@@ -39,10 +39,9 @@ impl<'t> IntoIterator for &'t ExtendedTree {
 
 #[cfg(test)]
 mod tests {
-    use crate::node_extensions::NodeExtensions;
     use std::rc::Rc;
 
-    use super::ExtendedTree;
+    use crate::ExtendedTree;
 
     #[test]
     fn should_return_expected_elements() {

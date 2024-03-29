@@ -2,7 +2,7 @@ use std::rc::Rc;
 
 use tree_sitter::TreeCursor;
 
-use crate::node_extensions::ExtendedNode;
+use crate::ExtendedNode;
 
 pub struct ExtendedTreeCursor<'t> {
     pub cursor: TreeCursor<'t>,
@@ -38,7 +38,7 @@ impl<'t> Iterator for ExtendedTreeCursor<'t> {
 mod tests {
     use std::rc::Rc;
 
-    use crate::node_extensions::{ExtendedNode, NodeExtensions};
+    use crate::ExtendedNode;
 
     use super::ExtendedTreeCursor;
     use colored::Colorize;
