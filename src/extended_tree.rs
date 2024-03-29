@@ -31,7 +31,7 @@ impl<'t> IntoIterator for &'t ExtendedTree {
 
     fn into_iter(self) -> Self::IntoIter {
         ExtendedTreeCursor {
-            cursor: self.ts_tree.root_node().walk(),
+            ts_cursor: self.ts_tree.root_node().walk(),
             source: Rc::clone(&self.source),
         }
     }

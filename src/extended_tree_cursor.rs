@@ -5,7 +5,7 @@ use tree_sitter::TreeCursor;
 use crate::ExtendedNode;
 
 pub struct ExtendedTreeCursor<'t> {
-    pub cursor: TreeCursor<'t>,
+    pub ts_cursor: TreeCursor<'t>,
     pub source: Rc<String>,
 }
 
@@ -14,14 +14,14 @@ impl<'t> Iterator for ExtendedTreeCursor<'t> {
 
     fn next(&mut self) -> Option<Self::Item> {
         let node = ExtendedNode {
-            ts_node: self.cursor.node(),
+            ts_node: self.ts_cursor.node(),
             source: Rc::clone(&self.source),
         };
 
-        if !self.cursor.goto_first_child() && !self.cursor.goto_next_sibling() {
+        if !self.ts_cursor.goto_first_child() && !self.ts_cursor.goto_next_sibling() {
             loop {
-                if !self.cursor.goto_next_sibling() {
-                    if !self.cursor.goto_parent() {
+                if !self.ts_cursor.goto_next_sibling() {
+                    if !self.ts_cursor.goto_parent() {
                         return None;
                     }
                 } else {
@@ -77,7 +77,7 @@ mod tests {
         let cursor = root_node.walk();
 
         let it = ExtendedTreeCursor {
-            cursor,
+            ts_cursor: cursor,
             source: Rc::new(code.to_string()),
         };
 
@@ -143,7 +143,7 @@ mod tests {
         let cursor = root_node.walk();
 
         let it = ExtendedTreeCursor {
-            cursor,
+            ts_cursor: cursor,
             source: Rc::new(code.to_string()),
         };
 
