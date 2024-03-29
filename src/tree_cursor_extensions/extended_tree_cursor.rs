@@ -2,44 +2,30 @@ use std::rc::Rc;
 
 use tree_sitter::TreeCursor;
 
-use crate::{node_extensions::ExtendedNode, with_source::WithSource};
+use crate::node_extensions::ExtendedNode;
 
 pub struct ExtendedTreeCursor<'t> {
-    cursor: TreeCursor<'t>,
-    source: Rc<String>,
-}
-
-impl<'t> ExtendedTreeCursor<'t> {
-    pub fn new(cursor: TreeCursor<'t>, source: &Rc<String>) -> Self {
-        ExtendedTreeCursor {
-            cursor,
-            source: source.clone(),
-        }
-    }
-}
-
-impl<'t> WithSource for ExtendedTreeCursor<'t> {
-    fn get_complete_source(self: &Self) -> Rc<String> {
-        self.source.clone()
-    }
+    pub cursor: TreeCursor<'t>,
+    pub source: Rc<String>,
 }
 
 impl<'t> Iterator for ExtendedTreeCursor<'t> {
     type Item = ExtendedNode<'t>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let node = ExtendedNode::new(self.cursor.node(), self.source.clone());
+        let node = ExtendedNode {
+            ts_node: self.cursor.node(),
+            source: Rc::clone(&self.source),
+        };
 
-        if !self.cursor.goto_first_child() {
-            if !self.cursor.goto_next_sibling() {
-                loop {
-                    if !self.cursor.goto_next_sibling() {
-                        if !self.cursor.goto_parent() {
-                            return None;
-                        }
-                    } else {
-                        return self.next();
+        if !self.cursor.goto_first_child() && !self.cursor.goto_next_sibling() {
+            loop {
+                if !self.cursor.goto_next_sibling() {
+                    if !self.cursor.goto_parent() {
+                        return None;
                     }
+                } else {
+                    return self.next();
                 }
             }
         }
@@ -90,7 +76,10 @@ mod tests {
 
         let cursor = root_node.walk();
 
-        let it = ExtendedTreeCursor::new(cursor, &Rc::new(code.to_string()));
+        let it = ExtendedTreeCursor {
+            cursor,
+            source: Rc::new(code.to_string()),
+        };
 
         let nodes = it.collect::<Vec<ExtendedNode>>();
 
@@ -153,7 +142,10 @@ mod tests {
 
         let cursor = root_node.walk();
 
-        let it = ExtendedTreeCursor::new(cursor, &Rc::new(code.to_string()));
+        let it = ExtendedTreeCursor {
+            cursor,
+            source: Rc::new(code.to_string()),
+        };
 
         let nodes = it.collect::<Vec<ExtendedNode>>();
 
