@@ -39,8 +39,6 @@ impl<'t> IntoIterator for &'t ExtendedTree {
 
 #[cfg(test)]
 mod tests {
-    use std::rc::Rc;
-
     use crate::ExtendedTree;
 
     #[test]
@@ -65,7 +63,7 @@ mod tests {
         }
         "#;
 
-        let tree = ExtendedTree::from_source_code(&Rc::new(code.to_string()));
+        let tree = ExtendedTree::from_source_code(code);
 
         let mut it = tree.into_iter();
 
