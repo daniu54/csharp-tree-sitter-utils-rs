@@ -1,17 +1,15 @@
 use std::rc::Rc;
 
-use tree_sitter::{Parser, Tree};
-
 use crate::{ExtendedNode, ExtendedTreeCursor};
 
 pub struct ExtendedTree {
-    pub ts_tree: Tree,
-    pub source: Rc<String>,
+    pub ts_tree: tree_sitter::Tree,
+    pub source_code: Rc<String>,
 }
 
 impl ExtendedTree {
     pub fn from_source_code(source: &str) -> Self {
-        let mut parser = Parser::new();
+        let mut parser = tree_sitter::Parser::new();
         parser
             .set_language(tree_sitter_c_sharp::language())
             .unwrap();
@@ -20,7 +18,7 @@ impl ExtendedTree {
 
         ExtendedTree {
             ts_tree: tree,
-            source: Rc::new(source.to_string()),
+            source_code: Rc::new(source.to_string()),
         }
     }
 }
@@ -32,7 +30,7 @@ impl<'t> IntoIterator for &'t ExtendedTree {
     fn into_iter(self) -> Self::IntoIter {
         ExtendedTreeCursor {
             ts_cursor: self.ts_tree.root_node().walk(),
-            source: Rc::clone(&self.source),
+            source_code: Rc::clone(&self.source_code),
         }
     }
 }
@@ -71,6 +69,6 @@ mod tests {
             .find(|n| n.ts_node.kind() == "class_declaration")
             .unwrap();
 
-        assert!(node.get_source().contains("class Program"));
+        assert!(node.source_code.contains("class Program"));
     }
 }

@@ -15,7 +15,7 @@ let node = tree.into_iter()
     .unwrap();
 
 // view the source code of the node
-let node_source_code = node.get_source();
+let node_source_code = node.source_code;
 
 assert!(node_source_code.contains("class Program"));
 

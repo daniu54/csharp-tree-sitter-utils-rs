@@ -1,22 +1,19 @@
 use std::rc::Rc;
 
-use tree_sitter::TreeCursor;
-
 use crate::ExtendedNode;
 
 pub struct ExtendedTreeCursor<'t> {
-    pub ts_cursor: TreeCursor<'t>,
-    pub source: Rc<String>,
+    pub ts_cursor: tree_sitter::TreeCursor<'t>,
+    pub source_code: Rc<String>,
 }
 
 impl<'t> Iterator for ExtendedTreeCursor<'t> {
     type Item = ExtendedNode<'t>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        let node = ExtendedNode {
-            ts_node: self.ts_cursor.node(),
-            source: Rc::clone(&self.source),
-        };
+        let node = self.ts_cursor.node();
+
+        let node = ExtendedNode::new(node, self.source_code.clone());
 
         if !self.ts_cursor.goto_first_child() && !self.ts_cursor.goto_next_sibling() {
             loop {
@@ -78,7 +75,7 @@ mod tests {
 
         let it = ExtendedTreeCursor {
             ts_cursor: cursor,
-            source: Rc::new(code.to_string()),
+            source_code: Rc::new(code.to_string()),
         };
 
         let nodes = it.collect::<Vec<ExtendedNode>>();
@@ -144,7 +141,7 @@ mod tests {
 
         let it = ExtendedTreeCursor {
             ts_cursor: cursor,
-            source: Rc::new(code.to_string()),
+            source_code: Rc::new(code.to_string()),
         };
 
         let nodes = it.collect::<Vec<ExtendedNode>>();
@@ -157,13 +154,13 @@ mod tests {
 
         let contains = nodes
             .iter()
-            .any(|n| n.ts_node.kind() == kind && regex.is_match(&n.get_source()));
+            .any(|n| n.ts_node.kind() == kind && regex.is_match(&n.source_code));
 
         if !contains {
-            let candidates: Vec<String> = nodes
+            let candidates: Vec<&String> = nodes
                 .iter()
                 .filter(|n| n.ts_node.kind() == kind)
-                .map(|n| n.get_source())
+                .map(|n| &n.source_code)
                 .collect();
 
             let kind = kind.to_string().yellow();
