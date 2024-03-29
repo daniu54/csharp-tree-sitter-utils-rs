@@ -19,7 +19,7 @@ impl WithSource for ExtendedTree {
 }
 
 impl ExtendedTree {
-    fn new(source: &Rc<String>) -> Self {
+    pub fn new(source: &Rc<String>) -> Self {
         let mut parser = Parser::new();
         parser
             .set_language(tree_sitter_c_sharp::language())

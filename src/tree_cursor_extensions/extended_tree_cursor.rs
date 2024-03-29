@@ -52,8 +52,7 @@ impl<'t> Iterator for ExtendedTreeCursor<'t> {
 mod tests {
     use std::rc::Rc;
 
-    use crate::node_extensions::node_extensions::NodeExtensions;
-    use crate::node_extensions::ExtendedNode;
+    use crate::node_extensions::{ExtendedNode, NodeExtensions};
 
     use super::ExtendedTreeCursor;
     use colored::Colorize;
